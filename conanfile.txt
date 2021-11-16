@@ -1,0 +1,6 @@
+[requires]
+CentralApi/0.0.1@viacast/CentralApi
+nlohmann_json/3.10.4
+
+[generators]
+cmake
