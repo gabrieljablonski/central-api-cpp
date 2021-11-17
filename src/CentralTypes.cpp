@@ -569,7 +569,9 @@ nlohmann::json DeviceWithStatus::to_json() {
   }
   return j;
 }
+
 Lease::Lease() {}
+
 Lease::Lease(nlohmann::json json) {
   if (json.contains("id")) {
     json.at("id").get_to(this->id);
