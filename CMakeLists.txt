@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 project(CentralApi)
 
-add_library(http-client src/HttpClient.cpp src/CentralTypes.cpp)
+add_library(http-client src/http.cpp src/types.cpp)
 add_executable(api-test src/api-test.cpp)
 
 target_link_libraries(http-client -lcurl -lcurlpp -pthread)

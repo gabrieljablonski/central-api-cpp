@@ -1,4 +1,4 @@
-#include "CentralTypes.hpp"
+#include "types.hpp"
 
 namespace viacast::central::types {
 

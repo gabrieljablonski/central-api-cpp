@@ -9,7 +9,7 @@
 #include <sstream>
 #include <string>
 
-#include "CentralTypes.hpp"
+#include "types.hpp"
 
 namespace viacast::central::http {
 
