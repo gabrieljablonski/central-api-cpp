@@ -394,9 +394,8 @@ Device::Device(nlohmann::json json) {
     json.at("leaseIds").get_to(this->lease_ids);
   }
   if (json.contains("serviceOperationModes")) {
-    auto j = json.at("serviceOperationModes");
-    for (auto it = j.begin(); it != j.end(); ++it) {
-      this->service_operation_modes.push_back(ServiceOperationMode(*it));
+    for (auto op : json.at("serviceOperationModes")) {
+      this->service_operation_modes.push_back(ServiceOperationMode(op));
     }
   }
 }
@@ -426,12 +425,11 @@ nlohmann::json Device::to_json() const {
 
   j["leaseIds"] = this->lease_ids;
 
-  nlohmann::json op;
-  for (auto it = this->service_operation_modes.begin();
-       it != this->service_operation_modes.end(); ++it) {
-    op.push_back((*it).to_json());
+  nlohmann::json ops;
+  for (auto op : this->service_operation_modes) {
+    ops.push_back(op.to_json());
   }
-  j["serviceOperationModes"] = op;
+  j["serviceOperationModes"] = ops;
 
   return j;
 }
@@ -493,9 +491,8 @@ DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
     json.at("leaseIds").get_to(this->lease_ids);
   }
   if (json.contains("serviceOperationModes")) {
-    auto j = json.at("serviceOperationModes");
-    for (auto it = j.begin(); it != j.end(); ++it) {
-      this->service_operation_modes.push_back(ServiceOperationMode(*it));
+    for (auto op : json.at("serviceOperationModes")) {
+      this->service_operation_modes.push_back(ServiceOperationMode(op));
     }
   }
   if (json.contains("status")) {
@@ -532,12 +529,11 @@ nlohmann::json DeviceWithStatus::to_json() const {
 
   j["leaseIds"] = this->lease_ids;
 
-  nlohmann::json op;
-  for (auto it = this->service_operation_modes.begin();
-       it != this->service_operation_modes.end(); ++it) {
-    op.push_back((*it).to_json());
+  nlohmann::json ops;
+  for (auto op : this->service_operation_modes) {
+    ops.push_back(op.to_json());
   }
-  j["serviceOperationModes"] = op;
+  j["serviceOperationModes"] = ops;
 
   if (this->status != viacast::central::types::DeviceStatusType::null) {
     j["status"] = viacast::central::types::to_string(this->status);
