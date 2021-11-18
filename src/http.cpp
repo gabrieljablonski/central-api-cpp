@@ -82,10 +82,10 @@ DeviceKeygenResponse::DeviceKeygenResponse(std::string serial, std::string key)
 ServiceResponse::ServiceResponse(entities::Service service)
     : service(service) {}
 
-Client::Client(std::string host, int port, std::string prefix, int timeout,
+Client::Client(int port, std::string host, std::string prefix, int timeout,
                std::string locale, bool https, bool verbose)
-    : host(host),
-      port(port),
+    : port(port),
+      host(host),
       prefix(prefix),
       timeout(timeout),
       locale(locale),

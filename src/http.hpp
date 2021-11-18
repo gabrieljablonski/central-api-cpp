@@ -98,8 +98,8 @@ struct ServiceResponse {
 
 class Client {
  private:
-  std::string host;
   int port;
+  std::string host;
   std::string prefix;
   int32_t timeout;
   std::string locale;
@@ -114,7 +114,7 @@ class Client {
                          Body body = {});
 
  public:
-  Client(std::string host, int port, std::string prefix = "/v1",
+  Client(int port, std::string host = "localhost", std::string prefix = "/v1",
          int32_t timeout = 3L, std::string locale = "en", bool https = false,
          bool verbose = false);
   ~Client();
