@@ -5,19 +5,12 @@
 namespace viacast::central::http {
 
 std::string action_to_string(Action action) {
-  switch (action) {
-    case Action::GET:
-      return "GET";
-    case Action::POST:
-      return "POST";
-    case Action::PUT:
-      return "PUT";
-    case Action::PATCH:
-      return "PATCH";
-    case Action::DELETE:
-      return "DELETE";
-  }
-  return "";
+  std::map<Action, std::string> names = {{Action::GET, "GET"},
+                                         {Action::POST, "POST"},
+                                         {Action::PUT, "PUT"},
+                                         {Action::PATCH, "PATCH"},
+                                         {Action::DELETE, "DELETE"}};
+  return names.at(action);
 }
 
 AuthInfo::AuthInfo() {}
@@ -54,9 +47,13 @@ nlohmann::json UserRegisterArgs::to_json() const {
   return j;
 }
 
-UserResponse::UserResponse(entities::User user) : user(user){};
+UserResponse::UserResponse(entities::User user) : user(user) {}
+
 DevicesResponse::DevicesResponse(std::list<entities::Device> devices)
     : devices(devices) {}
+
+ServicesResponse::ServicesResponse(std::list<entities::Service> services)
+    : services(services) {}
 
 nlohmann::json DeviceRegisterArgs::to_json() const {
   nlohmann::json j;
@@ -75,14 +72,25 @@ nlohmann::json DeviceRegisterArgs::to_json() const {
   return j;
 }
 
+DeviceResponse::DeviceResponse(entities::Device device) : device(device) {}
+
+DeviceKeygenResponse::DeviceKeygenResponse() {}
+
+DeviceKeygenResponse::DeviceKeygenResponse(std::string serial, std::string key)
+    : serial(serial), key(key) {}
+
+ServiceResponse::ServiceResponse(entities::Service service)
+    : service(service) {}
+
 Client::Client(std::string host, int port, std::string prefix, int timeout,
-               std::string locale, bool https)
+               std::string locale, bool https, bool verbose)
     : host(host),
       port(port),
       prefix(prefix),
       timeout(timeout),
       locale(locale),
-      https(https) {
+      https(https),
+      verbose(verbose) {
   curlpp::initialize(CURL_GLOBAL_ALL);
 }
 
@@ -97,14 +105,10 @@ std::string Client::build_url(std::string path) {
 
 Headers Client::build_headers() {
   Headers headers;
-  std::ostringstream accept_language;
-  std::ostringstream authorization;
-  accept_language << "Accept-Language: " << this->locale;
-  authorization << "Authorization: Bearer " << this->token;
   headers.push_back("Content-Type: application/json");
-  headers.push_back(accept_language.str());
+  headers.push_back("Accept-Language: " + this->locale);
   if (!this->token.empty()) {
-    headers.push_back(authorization.str());
+    headers.push_back("Authorization: Bearer " + this->token);
   }
   return headers;
 }
@@ -112,7 +116,7 @@ Headers Client::build_headers() {
 Response<Body> Client::request(std::string path, Action action, Body body) {
   curlpp::Easy request;
   using namespace curlpp::Options;
-  // request.setOpt(Verbose(true));
+  request.setOpt(Verbose(this->verbose));
   request.setOpt(ConnectTimeout(this->timeout));
   request.setOpt(Url(this->build_url(path)));
   request.setOpt(HttpHeader(this->build_headers()));
@@ -127,11 +131,11 @@ Response<Body> Client::request(std::string path, Action action, Body body) {
   try {
     request.perform();
   } catch (curlpp::LibcurlRuntimeError const &e) {
-    Response<Body> response = {500, false, e.what(), Body({})};
+    Response<Body> response = {500, false, e.what(), {}};
     return response;
   }
   long http_code = curlpp::infos::ResponseCode::get(request);
-  Body rbody = Body({});
+  Body rbody = {};
   if (!r.str().empty()) {
     rbody = Body::parse(r.str());
   }
@@ -170,7 +174,7 @@ PromisedResponse<AuthInfo> Client::auth_login(std::string key,
 PromisedResponse<> Client::auth_request_verification_code() {
   return std::async(std::launch::async, [&, this]() {
     auto r = this->request("/auth/verification-code", Action::GET);
-    Response<> response = {r.status, r.success, r.message, Body({})};
+    Response<> response = {r.status, r.success, r.message, {}};
     return response;
   });
 }
@@ -179,7 +183,7 @@ PromisedResponse<> Client::auth_submit_verification_code(std::string code) {
   return std::async(std::launch::async, [&, this, code]() {
     auto r = this->request("/auth/verification-code", Action::POST,
                            {{"code", code}});
-    Response<> response = {r.status, r.success, r.message, Body({})};
+    Response<> response = {r.status, r.success, r.message, {}};
     return response;
   });
 }
@@ -207,7 +211,7 @@ PromisedResponse<> Client::auth_change_password(std::string old_password,
         auto r = this->request(
             "/auth/change-password", Action::POST,
             {{"oldPassword", old_password}, {"newPassword", new_password}});
-        Response<> response = {r.status, r.success, r.message, Body({})};
+        Response<> response = {r.status, r.success, r.message, {}};
         return response;
       });
 }
@@ -215,12 +219,12 @@ PromisedResponse<> Client::auth_change_password(std::string old_password,
 PromisedResponse<UserResponse> Client::user_register(UserRegisterArgs user) {
   return std::async(std::launch::async, [&, this, user]() {
     auto r = this->request("/user/register", Action::POST, user.to_json());
-    entities::User user;
+    entities::User new_user;
     if (r.data.contains("user")) {
-      user = entities::User(r.data.at("user"));
+      new_user = entities::User(r.data.at("user"));
     }
     Response<UserResponse> response = {r.status, r.success, r.message,
-                                       UserResponse(user)};
+                                       UserResponse(new_user)};
     return response;
   });
 }
@@ -240,7 +244,7 @@ PromisedResponse<UserResponse> Client::user_me() {
 
 PromisedResponse<DevicesResponse> Client::user_my_devices() {
   return std::async(std::launch::async, [&, this]() {
-    auto r = this->request("/user/me", Action::GET);
+    auto r = this->request("/user/me/devices", Action::GET);
     std::list<entities::Device> devices;
     if (r.data.contains("devices")) {
       auto d = r.data.at("devices");
@@ -250,6 +254,164 @@ PromisedResponse<DevicesResponse> Client::user_my_devices() {
     }
     Response<DevicesResponse> response = {r.status, r.success, r.message,
                                           DevicesResponse(devices)};
+    return response;
+  });
+}
+
+PromisedResponse<ServicesResponse> Client::user_my_services() {
+  return std::async(std::launch::async, [&, this]() {
+    auto r = this->request("/user/me/services", Action::GET);
+    std::list<entities::Service> services;
+    if (r.data.contains("services")) {
+      auto d = r.data.at("services");
+      for (auto service = d.begin(); service != d.end(); ++service) {
+        services.push_back(entities::Service(*service));
+      }
+    }
+    Response<ServicesResponse> response = {r.status, r.success, r.message,
+                                           ServicesResponse(services)};
+    return response;
+  });
+}
+
+PromisedResponse<DeviceResponse> Client::device_register(
+    DeviceRegisterArgs device) {
+  return std::async(std::launch::async, [&, this, device]() {
+    auto r = this->request("/device/register", Action::POST, device.to_json());
+    entities::Device new_device;
+    if (r.data.contains("device")) {
+      new_device = entities::Device(r.data.at("device"));
+    }
+    Response<DeviceResponse> response = {r.status, r.success, r.message,
+                                         DeviceResponse(new_device)};
+    return response;
+  });
+}
+
+PromisedResponse<ServicesResponse> Client::device_my_services() {
+  return std::async(std::launch::async, [&, this]() {
+    auto r = this->request("/device/me/services", Action::GET);
+    std::list<entities::Service> services;
+    if (r.data.contains("services")) {
+      auto d = r.data.at("services");
+      for (auto service = d.begin(); service != d.end(); ++service) {
+        services.push_back(entities::Service(*service));
+      }
+    }
+    Response<ServicesResponse> response = {r.status, r.success, r.message,
+                                           ServicesResponse(services)};
+    return response;
+  });
+}
+
+PromisedResponse<DeviceResponse> Client::device_update_me(
+    entities::Device device) {
+  return std::async(std::launch::async, [&, this, device]() {
+    auto r = this->request("/device/me", Action::PATCH, device.to_json());
+    entities::Device updated_device;
+    if (r.data.contains("device")) {
+      updated_device = entities::Device(r.data.at("device"));
+    }
+    Response<DeviceResponse> response = {r.status, r.success, r.message,
+                                         DeviceResponse(updated_device)};
+    return response;
+  });
+}
+
+PromisedResponse<DeviceResponse> Client::device_update(
+    entities::Device device) {
+  return std::async(std::launch::async, [&, this, device]() {
+    auto r =
+        this->request("/device/" + device.id, Action::PATCH, device.to_json());
+    entities::Device updated_device;
+    if (r.data.contains("device")) {
+      updated_device = entities::Device(r.data.at("device"));
+    }
+    Response<DeviceResponse> response = {r.status, r.success, r.message,
+                                         DeviceResponse(updated_device)};
+    return response;
+  });
+}
+
+PromisedResponse<DeviceKeygenResponse> Client::device_keygen(std::string serial,
+                                                             bool force_new) {
+  return std::async(std::launch::async, [&, this, serial, force_new]() {
+    auto r = this->request("/device/keygen", Action::POST,
+                           {{"serial", serial}, {"forceNew", force_new}});
+    DeviceKeygenResponse keygen_response;
+    if (r.data.contains("serial")) {
+      r.data.at("serial").get_to(keygen_response.serial);
+      r.data.at("key").get_to(keygen_response.key);
+    }
+    Response<DeviceKeygenResponse> response = {r.status, r.success, r.message,
+                                               keygen_response};
+    return response;
+  });
+}
+
+PromisedResponse<> Client::device_request_ownership(std::string serial) {
+  return std::async(std::launch::async, [&, this, serial]() {
+    auto r = this->request("/device/request-ownership", Action::POST,
+                           {{"serial", serial}});
+    Response<> response = {r.status, r.success, r.message, {}};
+    return response;
+  });
+}
+
+PromisedResponse<DeviceResponse> Client::device_submit_ownership_code(
+    std::string serial, std::string code, bool take_ownership) {
+  return std::async(
+      std::launch::async, [&, this, serial, code, take_ownership]() {
+        auto r = this->request("/device/submit-ownership-code", Action::POST,
+                               {{"serial", serial},
+                                {"code", code},
+                                {"takeOwnership", take_ownership}});
+        entities::Device device;
+        if (r.data.contains("device")) {
+          device = entities::Device(r.data.at("device"));
+        }
+        Response<DeviceResponse> response = {r.status, r.success, r.message,
+                                             DeviceResponse(device)};
+        return response;
+      });
+}
+
+PromisedResponse<ServiceResponse> Client::service_register(
+    entities::Service service) {
+  return std::async(std::launch::async, [&, this, service]() {
+    auto r =
+        this->request("/service/register", Action::POST, service.to_json());
+    entities::Service new_service;
+    if (r.data.contains("service")) {
+      new_service = entities::Service(r.data.at("service"));
+    }
+    Response<ServiceResponse> response = {r.status, r.success, r.message,
+                                          ServiceResponse(new_service)};
+    return response;
+  });
+}
+
+PromisedResponse<ServiceResponse> Client::service_update(
+    entities::Service service) {
+  return std::async(std::launch::async, [&, this, service]() {
+    auto r = this->request("/service/" + service.id, Action::PATCH,
+                           service.to_json());
+    entities::Service updated_service;
+    if (r.data.contains("service")) {
+      updated_service = entities::Service(r.data.at("service"));
+    }
+    Response<ServiceResponse> response = {r.status, r.success, r.message,
+                                          ServiceResponse(updated_service)};
+    return response;
+  });
+}
+
+PromisedResponse<> Client::service_toggle_running(
+    std::string id, types::ToggleRunningAction action) {
+  return std::async(std::launch::async, [&, this, action]() {
+    auto r = this->request("/service/" + id + "/running", Action::PATCH,
+                           {{"action", types::to_string(action)}});
+    Response<> response = {r.status, r.success, r.message, {}};
     return response;
   });
 }

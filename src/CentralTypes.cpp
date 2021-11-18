@@ -77,21 +77,13 @@ std::string to_string(AuthRole role) {
                                            {AuthRole::KEYGEN, "KEYGEN"},
                                            {AuthRole::USER, "USER"},
                                            {AuthRole::DEVICE, "DEVICE"}};
-  try {
-    return names.at(role);
-  } catch (std::out_of_range const &e) {
-    return "";
-  }
+  return names.at(role);
 }
 
 std::string to_string(ServiceType type) {
   std::map<ServiceType, std::string> names = {{ServiceType::FEED, "FEED"},
                                               {ServiceType::OUTPUT, "OUTPUT"}};
-  try {
-    return names.at(type);
-  } catch (std::out_of_range const &e) {
-    return "";
-  }
+  return names.at(type);
 }
 
 std::string to_string(ServiceStatusType type) {
@@ -100,11 +92,7 @@ std::string to_string(ServiceStatusType type) {
       {ServiceStatusType::READY, "READY"},
       {ServiceStatusType::LOAD, "LOAD"},
       {ServiceStatusType::LIVE, "LIVE"}};
-  try {
-    return names.at(type);
-  } catch (std::out_of_range const &e) {
-    return "";
-  }
+  return names.at(type);
 }
 
 std::string to_string(DeviceStatusType type) {
@@ -112,22 +100,14 @@ std::string to_string(DeviceStatusType type) {
       {DeviceStatusType::OFF, "OFF"},
       {DeviceStatusType::ON, "ON"},
       {DeviceStatusType::REBOOTING, "REBOOTING"}};
-  try {
-    return names.at(type);
-  } catch (std::out_of_range const &e) {
-    return "";
-  }
+  return names.at(type);
 }
 
 std::string to_string(LeaseType type) {
   std::map<LeaseType, std::string> names = {
       {LeaseType::EXCLUSIVE, "EXCLUSIVE"},
       {LeaseType::NON_EXCLUSIVE, "NON_EXCLUSIVE"}};
-  try {
-    return names.at(type);
-  } catch (std::out_of_range const &e) {
-    return "";
-  }
+  return names.at(type);
 }
 
 std::string to_string(ToggleRunningAction action) {
@@ -135,11 +115,7 @@ std::string to_string(ToggleRunningAction action) {
       {ToggleRunningAction::START, "start"},
       {ToggleRunningAction::STOP, "stop"},
       {ToggleRunningAction::RESTART, "restart"}};
-  try {
-    return names.at(action);
-  } catch (std::out_of_range const &e) {
-    return "";
-  }
+  return names.at(action);
 }
 
 }  // namespace viacast::central::types
@@ -161,7 +137,7 @@ Auth::Auth(nlohmann::json json) {
   }
 }
 
-nlohmann::json Auth::to_json() {
+nlohmann::json Auth::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -186,7 +162,7 @@ Group::Group(nlohmann::json json) {
   }
 }
 
-nlohmann::json Group::to_json() {
+nlohmann::json Group::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -210,7 +186,7 @@ ServiceOperationMode::ServiceOperationMode(nlohmann::json json) {
     json.at("displayName").get_to(this->display_name);
   }
   if (json.contains("type")) {
-    viacast::central::types::from_string(json.at("role").get<std::string>(),
+    viacast::central::types::from_string(json.at("type").get<std::string>(),
                                          &this->type);
   }
   if (json.contains("configLayout")) {
@@ -218,7 +194,7 @@ ServiceOperationMode::ServiceOperationMode(nlohmann::json json) {
   }
 }
 
-nlohmann::json ServiceOperationMode::to_json() {
+nlohmann::json ServiceOperationMode::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -264,7 +240,7 @@ Service::Service(nlohmann::json json) {
   }
 }
 
-nlohmann::json Service::to_json() {
+nlohmann::json Service::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -292,7 +268,9 @@ nlohmann::json Service::to_json() {
   }
   return j;
 }
+
 ServiceStatus::ServiceStatus() {}
+
 ServiceStatus::ServiceStatus(nlohmann::json json) {
   if (json.contains("id")) {
     json.at("id").get_to(this->id);
@@ -306,7 +284,7 @@ ServiceStatus::ServiceStatus(nlohmann::json json) {
   }
 }
 
-nlohmann::json ServiceStatus::to_json() {
+nlohmann::json ServiceStatus::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -353,7 +331,7 @@ ServiceWithStatus::ServiceWithStatus(nlohmann::json json) {
   }
 }
 
-nlohmann::json ServiceWithStatus::to_json() {
+nlohmann::json ServiceWithStatus::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -383,7 +361,7 @@ nlohmann::json ServiceWithStatus::to_json() {
     j["status"] = viacast::central::types::to_string(this->status);
   }
   if (!this->info.empty()) {
-    j["displayName"] = this->info;
+    j["info"] = this->info;
   }
   return j;
 }
@@ -403,7 +381,7 @@ Device::Device(nlohmann::json json) {
   if (json.contains("userId")) {
     json.at("userId").get_to(this->user_id);
   }
-  if (json.contains("mode")) {
+  if (json.contains("model")) {
     json.at("model").get_to(this->model);
   }
   if (json.contains("group")) {
@@ -423,7 +401,7 @@ Device::Device(nlohmann::json json) {
   }
 }
 
-nlohmann::json Device::to_json() {
+nlohmann::json Device::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -473,7 +451,7 @@ DeviceStatus::DeviceStatus(nlohmann::json json) {
   }
 }
 
-nlohmann::json DeviceStatus::to_json() {
+nlohmann::json DeviceStatus::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -502,7 +480,7 @@ DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
   if (json.contains("userId")) {
     json.at("userId").get_to(this->user_id);
   }
-  if (json.contains("mode")) {
+  if (json.contains("model")) {
     json.at("model").get_to(this->model);
   }
   if (json.contains("group")) {
@@ -529,7 +507,7 @@ DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
   }
 }
 
-nlohmann::json DeviceWithStatus::to_json() {
+nlohmann::json DeviceWithStatus::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -603,7 +581,7 @@ Lease::Lease(nlohmann::json json) {
   }
 }
 
-nlohmann::json Lease::to_json() {
+nlohmann::json Lease::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;
@@ -664,7 +642,7 @@ User::User(nlohmann::json json) {
   }
 }
 
-nlohmann::json User::to_json() {
+nlohmann::json User::to_json() const {
   nlohmann::json j;
   if (!this->id.empty()) {
     j["id"] = this->id;

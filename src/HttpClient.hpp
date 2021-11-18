@@ -76,11 +76,24 @@ struct DeviceRegisterArgs {
   nlohmann::json to_json() const;
 };
 
-struct DeviceResponse {};
+struct DeviceResponse {
+  entities::Device device;
+
+  DeviceResponse(entities::Device device);
+};
 
 struct DeviceKeygenResponse {
   std::string serial;
   std::string key;
+
+  DeviceKeygenResponse();
+  DeviceKeygenResponse(std::string serial, std::string key);
+};
+
+struct ServiceResponse {
+  entities::Service service;
+
+  ServiceResponse(entities::Service service);
 };
 
 class Client {
@@ -93,6 +106,7 @@ class Client {
   bool https;
   std::string token;
   std::string refresh_token;
+  bool verbose;
 
   std::string build_url(std::string path);
   Headers build_headers();
@@ -101,7 +115,8 @@ class Client {
 
  public:
   Client(std::string host, int port, std::string prefix = "/v1",
-         int32_t timeout = 3L, std::string locale = "en", bool https = false);
+         int32_t timeout = 3L, std::string locale = "en", bool https = false,
+         bool verbose = false);
   ~Client();
 
   PromisedResponse<AuthInfo> auth_login(std::string key, std::string password);
@@ -116,19 +131,18 @@ class Client {
   PromisedResponse<DevicesResponse> user_my_devices();
   PromisedResponse<ServicesResponse> user_my_services();
 
-  PromisedResponse<entities::Device> device_register(DeviceRegisterArgs device);
-  PromisedResponse<std::list<entities::Service>> device_my_services();
-  PromisedResponse<entities::Device> device_update_me(entities::Device device);
-  PromisedResponse<entities::Device> device_update(entities::Device device);
+  PromisedResponse<DeviceResponse> device_register(DeviceRegisterArgs device);
+  PromisedResponse<ServicesResponse> device_my_services();
+  PromisedResponse<DeviceResponse> device_update_me(entities::Device device);
+  PromisedResponse<DeviceResponse> device_update(entities::Device device);
   PromisedResponse<DeviceKeygenResponse> device_keygen(std::string serial,
                                                        bool force_new = false);
   PromisedResponse<> device_request_ownership(std::string serial);
-  PromisedResponse<entities::Device> device_submit_ownership_code(
+  PromisedResponse<DeviceResponse> device_submit_ownership_code(
       std::string serial, std::string code, bool take_ownership = false);
 
-  PromisedResponse<entities::Service> service_register(
-      entities::Service service);
-  PromisedResponse<entities::Service> service_update(entities::Service service);
+  PromisedResponse<ServiceResponse> service_register(entities::Service service);
+  PromisedResponse<ServiceResponse> service_update(entities::Service service);
   PromisedResponse<> service_toggle_running(std::string id,
                                             types::ToggleRunningAction action);
 };

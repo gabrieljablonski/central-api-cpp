@@ -39,7 +39,7 @@ struct Auth {
 
   Auth();
   Auth(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct Group {
@@ -48,7 +48,7 @@ struct Group {
 
   Group();
   Group(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct ServiceOperationMode {
@@ -60,7 +60,7 @@ struct ServiceOperationMode {
 
   ServiceOperationMode();
   ServiceOperationMode(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct Service {
@@ -75,7 +75,7 @@ struct Service {
 
   Service();
   Service(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct ServiceStatus {
@@ -85,7 +85,7 @@ struct ServiceStatus {
 
   ServiceStatus();
   ServiceStatus(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct ServiceWithStatus : Service, ServiceStatus {
@@ -93,7 +93,7 @@ struct ServiceWithStatus : Service, ServiceStatus {
 
   ServiceWithStatus();
   ServiceWithStatus(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct Device {
@@ -109,7 +109,7 @@ struct Device {
 
   Device();
   Device(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct DeviceStatus {
@@ -119,7 +119,7 @@ struct DeviceStatus {
 
   DeviceStatus();
   DeviceStatus(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct DeviceWithStatus : Device, DeviceStatus {
@@ -127,7 +127,7 @@ struct DeviceWithStatus : Device, DeviceStatus {
 
   DeviceWithStatus();
   DeviceWithStatus(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct Lease {
@@ -143,7 +143,7 @@ struct Lease {
 
   Lease();
   Lease(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 struct User {
@@ -158,7 +158,7 @@ struct User {
 
   User();
   User(nlohmann::json json);
-  nlohmann::json to_json();
+  nlohmann::json to_json() const;
 };
 
 }  // namespace viacast::central::entities
