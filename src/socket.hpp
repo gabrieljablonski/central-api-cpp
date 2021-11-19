@@ -78,8 +78,9 @@ class Client {
  public:
   Future<nlohmann::json> emit(Event event, nlohmann::json data);
 
-  Client(int port, std::string host, std::string path, int timeout,
-         std::string locale, bool https, std::string token = "");
+  Client(int port, std::string host = "localhost",
+         std::string path = "/socket.io/", int timeout = 3000,
+         std::string locale = "en", bool https = false, std::string token = "");
 
   void set_locale(std::string locale);
   void set_token(std::string token);
