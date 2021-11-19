@@ -31,6 +31,7 @@ enum class Event {
 std::string event_to_string(Event event);
 
 sio::message::ptr json_to_message(nlohmann::json json);
+nlohmann::json message_to_json(sio::message::ptr message);
 
 template <typename... TArgs>
 using Callback = std::function<void(TArgs... args)>;
@@ -52,6 +53,10 @@ struct ServiceOnToggleRunningCallbackArgs {
   types::ToggleRunningAction action;
 };
 
+struct NotConnectedException : public std::exception {
+  const char* what() const throw() { return "Socket not connected"; }
+};
+
 class Client {
  private:
   int port;
@@ -65,6 +70,8 @@ class Client {
   sio::client client;
 
   std::string build_url();
+  std::map<std::string, std::string> build_query();
+  sio::message::ptr build_auth();
   // Future<nlohmann::json> emit(Event event, nlohmann::json data);
   void on(Event event, Callback<nlohmann::json> handler);
 
@@ -76,10 +83,12 @@ class Client {
 
   void set_locale(std::string locale);
   void set_token(std::string token);
-  bool connected();
-  void connect(Callback<> on_connect, Callback<> on_fail,
-               Callback<sio::client::close_reason> on_close);
-  void try_connect(Callback<> on_connect, Callback<> on_fail);
+  bool connected() const;
+  void connect(Callback<Client*> on_connect = {},
+               Callback<std::string> on_fail = {}, Callback<> on_close = {});
+  void try_connect(Callback<Client*> on_connect = {},
+                   Callback<std::string> on_fail = {},
+                   Callback<> on_close = {});
   void disconnect();
 
   Future<> device_update_status(entities::DeviceStatus status);

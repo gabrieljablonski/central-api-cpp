@@ -7,4 +7,4 @@
 # rapidjson https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=class-memaccess -Wno-error=implicit-fallthrough=")
 
-# socket.io wget https://github.com/socketio/socket.io-client-cpp/archive/refs/tags/3.1.0.tar.gz
+# socket.io https://github.com/gabrieljablonski/socket.io-client-cpp

@@ -38,7 +38,7 @@ sio::message::ptr json_to_message(nlohmann::json json) {
   }
   if (json.is_object()) {
     sio::message::ptr m = sio::object_message::create();
-    for (auto &j : json.items()) {
+    for (auto& j : json.items()) {
       m->get_map()[j.key()] = json_to_message(j.value());
     }
     return m;
@@ -46,17 +46,72 @@ sio::message::ptr json_to_message(nlohmann::json json) {
   return sio::null_message::create();
 }
 
+nlohmann::json message_to_json(sio::message::ptr message) {
+  switch (message->get_flag()) {
+    case sio::message::flag_integer:
+      return nlohmann::json(message->get_int());
+    case sio::message::flag_double:
+      return nlohmann::json(message->get_double());
+    case sio::message::flag_string:
+      return nlohmann::json(message->get_string());
+    case sio::message::flag_boolean:
+      return nlohmann::json(message->get_bool());
+    case sio::message::flag_array: {
+      nlohmann::json j;
+      for (auto& m : message->get_vector()) {
+        j.push_back(message_to_json(m));
+      }
+      return j;
+    }
+    case sio::message::flag_object: {
+      nlohmann::json j;
+      for (auto& m : message->get_map()) {
+        j[m.first] = message_to_json(m.second);
+      }
+      return j;
+    }
+    default:
+      return nlohmann::json();
+  }
+  return nlohmann::json();
+}
+
 std::string Client::build_url() {
   return "http" + std::string(this->https ? "s" : "") + "://" + this->host +
          ":" + std::to_string(this->port) + this->path;
 }
 
+std::map<std::string, std::string> Client::build_query() {
+  std::map<std::string, std::string> query = {
+      {"locale", this->locale}, {"timeout", std::to_string(this->timeout)}};
+  return query;
+}
+
+sio::message::ptr Client::build_auth() {
+  sio::message::ptr auth = sio::object_message::create();
+  auth->get_map()["token"] = sio::string_message::create(this->token);
+  return auth;
+}
+
 Future<nlohmann::json> Client::emit(Event event, nlohmann::json data) {
-  return std::async(std::launch::async, [&, this, event, data]() {
-    auto s = this->client.socket();
-    s->emit(event_to_string(event), json_to_message(data));
-    return nlohmann::json({});
-  });
+  if (!this->connected()) {
+    std::cerr << "socket not connected" << std::endl;
+    throw NotConnectedException();
+  }
+  auto s = this->client.socket();
+  auto p = std::make_shared<std::promise<nlohmann::json>>();
+  std::cerr << "emitting " << event_to_string(event) << " " << data.dump()
+            << std::endl;
+  s->emit(event_to_string(event), json_to_message(data),
+          [p](sio::message::list const& args) {
+            if (!args.size()) {
+              p->set_value(nlohmann::json({}));
+              return;
+            }
+            p->set_value(message_to_json(args.at(0)));
+            return;
+          });
+  return p->get_future();
 }
 
 // void Client::on(Event event, Callback<nlohmann::json> handler) {}
@@ -75,27 +130,39 @@ void Client::set_locale(std::string locale) { this->locale = locale; }
 
 void Client::set_token(std::string token) { this->token = token; }
 
-bool Client::connected() { return this->client.opened(); }
+bool Client::connected() const { return this->client.opened(); }
 
-void Client::connect(Callback<> on_connect, Callback<> on_fail,
-                     Callback<sio::client::close_reason> on_close) {
+void Client::connect(Callback<Client*> on_connect,
+                     Callback<std::string> on_fail, Callback<> on_close) {
   this->disconnect();
-  std::map<std::string, std::string> query = {
-      {"token", this->token},
-      {"locale", this->locale},
-      {"timeout", std::to_string(this->timeout)}};
-  this->client.set_open_listener(on_connect);
-  this->client.set_fail_listener(on_fail);
-  this->client.set_close_listener(on_close);
+
+  this->client.set_logs_verbose();
+
   this->client.set_socket_open_listener(
-      [](std::string nsp) { std::cout << "socket open " << nsp << std::endl; });
-  this->client.set_socket_close_listener([](std::string nsp) {
-    std::cout << "socket close " << nsp << std::endl;
-  });
-  this->client.connect(this->build_url(), query);
+      [&, this, on_connect](std::string) { on_connect(this); });
+  this->client.set_socket_close_listener(
+      [on_close](std::string) { on_close(); });
+
+  this->client.connect(this->build_url(), this->build_query(),
+                       this->build_auth());
+  this->client.socket()->on_error(
+      [&, this, on_fail](sio::message::ptr message) {
+        if (message->get_flag() == sio::message::flag_object &&
+            message->get_map().count("message")) {
+          std::string m = message->get_map().at("message")->get_string();
+          on_fail(m);
+          this->disconnect();
+        }
+        on_fail("unknown reason");
+      });
 }
 
-// void Client::try_connect(Callback<> on_connect, Callback<> on_fail) {}
+void Client::try_connect(Callback<Client*> on_connect,
+                         Callback<std::string> on_fail, Callback<> on_close) {
+  if (!this->connected()) {
+    this->connect(on_connect, on_fail, on_close);
+  }
+}
 
 void Client::disconnect() { this->client.close(); }
 
