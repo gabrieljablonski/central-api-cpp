@@ -16,19 +16,7 @@ int main() {
     exit(-1);
   }
 
-  while (!client.socket_connected()) {
-    auto c = client.socket_connect();
-    std::cout << "waiting client connection" << std::endl;
-    auto connected = c.get();
-    if (connected.empty()) {
-      std::cout << "client connected" << std::endl;
-    } else {
-      std::cout << "client connection failed: '" << connected << "'"
-                << std::endl;
-      client.socket_disconnect();
-      sleep(1);
-    }
-  }
+  client.socket_try_connect();
   client.device_on_request_ownership(
       [](socket::DeviceOnRequestOwnershipCallbackArgs args) {
         std::cout << "ownership requested: " << args.code << " (expires on "
