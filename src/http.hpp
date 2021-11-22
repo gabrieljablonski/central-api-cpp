@@ -114,6 +114,7 @@ class Client {
                                    nlohmann::json body = {});
 
  public:
+  Client();
   Client(int port, std::string host = "localhost", std::string prefix = "/v1",
          int32_t timeout = 3L, std::string locale = "en", bool https = false,
          bool verbose = false);

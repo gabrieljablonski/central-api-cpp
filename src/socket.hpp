@@ -88,6 +88,7 @@ class Client {
   void on(Event event, Callback<nlohmann::json> handler);
 
  public:
+  Client();
   Client(int port, std::string host = "localhost",
          std::string path = "/socket.io/", int timeout = 3000,
          std::string locale = "en", bool https = false, std::string token = "");

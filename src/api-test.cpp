@@ -2,34 +2,22 @@
 
 #include <iostream>
 
-#include "http.hpp"
-#include "socket.hpp"
+#include "central-api.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 
 int main() {
   using namespace viacast::central;
-  // http::Client client(4440, "192.168.7.118", "/v1", 3,
-  // "en",
-  //                                       false, false);
-  // client.auth_login("gabriel@viacast.tv", "").wait();
-  // auto r = client.service_toggle_running(
-  //     "1234", types::ToggleRunningAction::START);
-  // r.wait();
-  // auto response = r.get();
-  // std::cout << "success: " << response.success << std::endl;
-  // std::cout << "message: " << response.message << std::endl;
+  CentralApi client(4440, "192.168.7.118", "/v1", 3000, "en", false);
+  auto r = client.auth_login("0872", "9FxH8d1GenGmZhVv6zbam1").get();
 
-  socket::Client client(
-      4440, "192.168.7.118", "/v1/socket.io/", 3000, "en", false,
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
-      "eyJhdXRoSWQiOiJjYTdhM2M5OC03ZjliLTRlYjAtYTNlMi04NjkzMTk0MTI2ZWIiLCJhdXRo"
-      "S2V5IjoiMDg3MiIsInVzZXJJZCI6bnVsbCwiZGV2aWNlSWQiOiIwMDJjZjZhYS03N2IzLTQz"
-      "NGMtYTU3NS0zZTM3MzQyNzAyODQiLCJpYXQiOjE2Mzc1ODcyNzEsImV4cCI6MTYzNzY3MzY3"
-      "MX0.rUDaX5elALq3bGi1Wj6NzOqju0CfmA9nCdea7O4YRpo");
+  if (!r.success) {
+    std::cout << "Login failed: '" << r.message << "'" << std::endl;
+    exit(-1);
+  }
 
-  while (!client.connected()) {
-    auto c = client.connect();
+  while (!client.socket_connected()) {
+    auto c = client.socket_connect();
     std::cout << "waiting client connection" << std::endl;
     auto connected = c.get();
     if (connected.empty()) {
@@ -37,17 +25,15 @@ int main() {
     } else {
       std::cout << "client connection failed: '" << connected << "'"
                 << std::endl;
-      client.disconnect();
+      client.socket_disconnect();
       sleep(1);
     }
   }
-
   client.device_on_request_ownership(
       [](socket::DeviceOnRequestOwnershipCallbackArgs args) {
         std::cout << "ownership requested: " << args.code << " (expires on "
                   << args.expiration << ")" << std::endl;
       });
-
   utils::wait_forever();
   return 0;
 }

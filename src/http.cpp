@@ -80,6 +80,8 @@ DeviceKeygenResponse::DeviceKeygenResponse(std::string serial, std::string key)
 ServiceResponse::ServiceResponse(entities::Service service)
     : service(service) {}
 
+Client::Client() {}
+
 Client::Client(int port, std::string host, std::string prefix, int timeout,
                std::string locale, bool https, bool verbose)
     : port(port),

@@ -145,6 +145,8 @@ void Client::on(Event event, Callback<nlohmann::json> handler) {
   });
 }
 
+Client::Client() {}
+
 Client::Client(int port, std::string host, std::string path, int timeout,
                std::string locale, bool https, std::string token)
     : port(port),
