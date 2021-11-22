@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 project(CentralApi)
 
-add_library(centralapi src/http.cpp src/socket.cpp src/types.cpp src/utils.cpp)
+add_library(centralapi src/version.cpp src/utils.cpp src/types.cpp src/http.cpp src/socket.cpp)
 add_executable(api-test src/api-test.cpp)
 
 target_link_libraries(centralapi -lcurl -lcurlpp -pthread -lsioclient)

@@ -14,6 +14,7 @@
 #include <string>
 
 #include "types.hpp"
+#include "utils.hpp"
 
 namespace viacast::central::socket {
 
@@ -33,6 +34,16 @@ std::string event_to_string(Event event);
 sio::message::ptr json_to_message(nlohmann::json json);
 nlohmann::json message_to_json(sio::message::ptr message);
 
+template <typename TData = nlohmann::json>
+struct Response {
+  bool success;
+  std::string message;
+  TData data;
+
+  Response(bool success, std::string message);
+  Response(bool success, std::string message, TData data);
+};
+
 template <typename... TArgs>
 using Callback = std::function<void(TArgs... args)>;
 
@@ -41,8 +52,8 @@ struct EventHandler {
   Callback<nlohmann::json> handler;
 };
 
-template <typename TResponse = void>
-using Future = std::future<TResponse>;
+template <typename TResponse = nlohmann::json>
+using Future = std::future<Response<TResponse>>;
 
 struct DeviceOnRequestOwnershipCallbackArgs {
   std::string code;
@@ -50,6 +61,7 @@ struct DeviceOnRequestOwnershipCallbackArgs {
 };
 
 struct ServiceOnToggleRunningCallbackArgs {
+  std::string id;
   types::ToggleRunningAction action;
 };
 
@@ -72,12 +84,10 @@ class Client {
   std::string build_url();
   std::map<std::string, std::string> build_query();
   sio::message::ptr build_auth();
-  // Future<nlohmann::json> emit(Event event, nlohmann::json data);
+  Future<nlohmann::json> emit(Event event, nlohmann::json data);
   void on(Event event, Callback<nlohmann::json> handler);
 
  public:
-  Future<nlohmann::json> emit(Event event, nlohmann::json data);
-
   Client(int port, std::string host = "localhost",
          std::string path = "/socket.io/", int timeout = 3000,
          std::string locale = "en", bool https = false, std::string token = "");
@@ -85,11 +95,8 @@ class Client {
   void set_locale(std::string locale);
   void set_token(std::string token);
   bool connected() const;
-  void connect(Callback<Client*> on_connect = {},
-               Callback<std::string> on_fail = {}, Callback<> on_close = {});
-  void try_connect(Callback<Client*> on_connect = {},
-                   Callback<std::string> on_fail = {},
-                   Callback<> on_close = {});
+  std::future<std::string> connect();
+  std::future<std::string> try_connect();
   void disconnect();
 
   Future<> device_update_status(entities::DeviceStatus status);

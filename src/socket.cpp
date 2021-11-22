@@ -76,6 +76,14 @@ nlohmann::json message_to_json(sio::message::ptr message) {
   return nlohmann::json();
 }
 
+template <typename TData>
+Response<TData>::Response(bool success, std::string message)
+    : success(success), message(message) {}
+
+template <typename TData>
+Response<TData>::Response(bool success, std::string message, TData data)
+    : success(success), message(message), data(data) {}
+
 std::string Client::build_url() {
   return "http" + std::string(this->https ? "s" : "") + "://" + this->host +
          ":" + std::to_string(this->port) + this->path;
@@ -99,22 +107,43 @@ Future<nlohmann::json> Client::emit(Event event, nlohmann::json data) {
     throw NotConnectedException();
   }
   auto s = this->client.socket();
-  auto p = std::make_shared<std::promise<nlohmann::json>>();
+  auto p = std::make_shared<std::promise<Response<nlohmann::json>>>();
   std::cerr << "emitting " << event_to_string(event) << " " << data.dump()
             << std::endl;
   s->emit(event_to_string(event), json_to_message(data),
           [p](sio::message::list const& args) {
+            Response<> r(false, "event failed");
             if (!args.size()) {
-              p->set_value(nlohmann::json({}));
+              p->set_value(r);
               return;
             }
-            p->set_value(message_to_json(args.at(0)));
+            auto j = message_to_json(args.at(0));
+            if (j.contains("success")) {
+              j.at("success").get_to(r.success);
+            }
+            if (j.contains("message")) {
+              j.at("message").get_to(r.message);
+            }
+            if (j.contains("data")) {
+              r.data = j.at("data");
+            }
+            p->set_value(r);
             return;
           });
   return p->get_future();
 }
 
-// void Client::on(Event event, Callback<nlohmann::json> handler) {}
+void Client::on(Event event, Callback<nlohmann::json> handler) {
+  this->client.socket()->on(event_to_string(event), [&, handler](sio::event e) {
+    auto messages = e.get_messages();
+    if (!messages.size()) {
+      handler(nlohmann::json());
+      return;
+    }
+    auto j = message_to_json(messages.at(0));
+    handler(j);
+  });
+}
 
 Client::Client(int port, std::string host, std::string path, int timeout,
                std::string locale, bool https, std::string token)
@@ -132,61 +161,145 @@ void Client::set_token(std::string token) { this->token = token; }
 
 bool Client::connected() const { return this->client.opened(); }
 
-void Client::connect(Callback<Client*> on_connect,
-                     Callback<std::string> on_fail, Callback<> on_close) {
+std::future<std::string> Client::connect() {
+  auto p = std::make_shared<std::promise<std::string>>();
+
   this->disconnect();
 
-  this->client.set_logs_verbose();
+  this->client.set_logs_quiet();
 
-  this->client.set_socket_open_listener(
-      [&, this, on_connect](std::string) { on_connect(this); });
+  this->client.set_socket_open_listener([p](std::string) {
+    std::cerr << "socket open" << std::endl;
+    try {
+      p->set_value("");
+    } catch (std::future_error const& e) {
+    }
+  });
   this->client.set_socket_close_listener(
-      [on_close](std::string) { on_close(); });
+      [&, this](std::string) { std::cerr << "socket close" << std::endl; });
 
   this->client.connect(this->build_url(), this->build_query(),
                        this->build_auth());
-  this->client.socket()->on_error(
-      [&, this, on_fail](sio::message::ptr message) {
-        if (message->get_flag() == sio::message::flag_object &&
-            message->get_map().count("message")) {
-          std::string m = message->get_map().at("message")->get_string();
-          on_fail(m);
-          this->disconnect();
-        }
-        on_fail("unknown reason");
-      });
+  this->client.socket()->on_error([&, this, p](sio::message::ptr message) {
+    std::string m = "unknown reason";
+    if (message->get_flag() == sio::message::flag_object &&
+        message->get_map().count("message")) {
+      m = message->get_map().at("message")->get_string();
+      this->disconnect();
+    }
+    // std::cerr << "socket error: '" << m << "'" << std::endl;
+    try {
+      p->set_value(m);
+    } catch (std::future_error const& e) {
+    }
+  });
+
+  return p->get_future();
 }
 
-void Client::try_connect(Callback<Client*> on_connect,
-                         Callback<std::string> on_fail, Callback<> on_close) {
+std::future<std::string> Client::try_connect() {
   if (!this->connected()) {
-    this->connect(on_connect, on_fail, on_close);
+    return this->connect();
   }
+  std::promise<std::string> p;
+  p.set_value("");
+  return p.get_future();
 }
 
 void Client::disconnect() { this->client.close(); }
 
-// Future<> Client::device_update_status(entities::DeviceStatus
-// status) {
-// }
+Future<> Client::device_update_status(entities::DeviceStatus status) {
+  return this->emit(Event::UPDATE_DEVICE_STATUS,
+                    {{"id", status.id},
+                     {"status", types::to_string(status.status)},
+                     {"info", status.info}});
+}
 
-// void Client::device_on_update(Callback<entities::Device> callback) {}
+void Client::device_on_update(Callback<entities::Device> callback) {
+  return this->on(Event::DEVICE_UPDATED, [&, callback](nlohmann::json json) {
+    if (json.contains("device")) {
+      callback(entities::Device(json.at("device")));
+      return;
+    }
+    callback(nlohmann::json());
+  });
+}
 
-// void Client::device_on_update_status(
-//     Callback<entities::DeviceStatus> callback) {}
+void Client::device_on_update_status(
+    Callback<entities::DeviceStatus> callback) {
+  return this->on(Event::DEVICE_STATUS_UPDATED,
+                  [&, callback](nlohmann::json json) {
+                    if (json.contains("status")) {
+                      callback(entities::DeviceStatus(json.at("status")));
+                      return;
+                    }
+                    callback(nlohmann::json());
+                  });
+}
 
-// void Client::device_on_request_ownership(
-//     Callback<DeviceOnRequestOwnershipCallbackArgs> callback) {}
+void Client::device_on_request_ownership(
+    Callback<DeviceOnRequestOwnershipCallbackArgs> callback) {
+  return this->on(
+      Event::DEVICE_REQUEST_OWNERSHIP, [&, callback](nlohmann::json json) {
+        DeviceOnRequestOwnershipCallbackArgs args;
+        if (json.contains("code")) {
+          if (json.at("code").contains("code")) {
+            json.at("code").at("code").get_to(args.code);
+          }
+          if (json.at("code").contains("expiration")) {
+            json.at("code").at("expiration").get_to(args.expiration);
+          }
+        }
+        callback(args);
+      });
+}
 
-// Future<> Client::service_update_status(
-//     entities::ServiceStatus status) {}
+Future<> Client::service_update_status(entities::ServiceStatus status) {
+  return this->emit(Event::UPDATE_SERVICE_STATUS,
+                    {{"id", status.id},
+                     {"status", types::to_string(status.status)},
+                     {"info", status.info}});
+}
 
-// void Client::service_on_update(Callback<entities::Service> callback) {}
+void Client::service_on_update(Callback<entities::Service> callback) {
+  return this->on(Event::SERVICE_UPDATED, [&, callback](nlohmann::json json) {
+    if (json.contains("service")) {
+      callback(entities::Service(json.at("service")));
+      return;
+    }
+    callback(nlohmann::json());
+  });
+}
 
-// void Client::service_on_update_status(
-//     Callback<entities::ServiceStatus> callback) {}
+void Client::service_on_update_status(
+    Callback<entities::ServiceStatus> callback) {
+  return this->on(Event::SERVICE_STATUS_UPDATED,
+                  [&, callback](nlohmann::json json) {
+                    if (json.contains("status")) {
+                      callback(entities::ServiceStatus(json.at("status")));
+                      return;
+                    }
+                    callback(nlohmann::json());
+                  });
+}
 
-// void Client::service_on_toggle_running(
-//     Callback<ServiceOnToggleRunningCallbackArgs> callback) {}
+void Client::service_on_toggle_running(
+    Callback<ServiceOnToggleRunningCallbackArgs> callback) {
+  return this->on(Event::SERVICE_TOGGLE_RUNNING,
+                  [&, callback](nlohmann::json json) {
+                    ServiceOnToggleRunningCallbackArgs args;
+                    if (json.contains("action")) {
+                      if (json.at("action").contains("id")) {
+                        json.at("action").at("id").get_to(args.id);
+                      }
+                      if (json.at("action").contains("action")) {
+                        std::string action;
+                        json.at("action").at("action").get_to(action);
+                        types::from_string(action, &args.action);
+                      }
+                    }
+                    callback(args);
+                  });
+}
 
 }  // namespace viacast::central::socket

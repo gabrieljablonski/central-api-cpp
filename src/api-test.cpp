@@ -20,52 +20,34 @@ int main() {
   // std::cout << "success: " << response.success << std::endl;
   // std::cout << "message: " << response.message << std::endl;
 
-  auto client = std::make_shared<socket::Client>(
+  socket::Client client(
       4440, "192.168.7.118", "/v1/socket.io/", 3000, "en", false,
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
-      "eyJhdXRoSWQiOiIxZGRkZDcwNC0zMzc3LTRlY2ItOGRjZS1lZmRhZTUwOGZkNTIiLCJhdXRo"
-      "S2V5IjoiYWRtaW5AdmlhY2FzdC50diIsImlhdCI6MTYzNzMzNzc4NSwiZXhwIjoxNjM3NDI0"
-      "MTg1fQ.HL5ScK6TUXyX96tpYuqxnWyk8OxlSKbqEclDwCOHnyM");
-  client->connect(
-      [](socket::Client* client) {
-        std::cout << "connected" << std::endl;
-        sleep(1);
-        auto r =
-            client->emit(socket::Event::TEST_EVENT, nlohmann::json::parse(R"(
-                {
-                  "true": true,
-                  "false": false,
-                  "int": 123,
-                  "float": 1.23,
-                  "string": "123",
-                  "object": { "test_nested": 123 },
-                  "array": [{"oi": "123"}, 123, 1.23, true, false]
-                }
-              )"));
-        std::cout << "waiting response" << std::endl;
-        r.wait();
-        std::cout << "r " << r.get().dump() << std::endl;
-      },
-      [](std::string reason) {
-        std::cout << "failed socket connection: " << reason << std::endl;
-      },
-      []() { std::cout << "closed" << std::endl; });
-  // sleep(1);
-  // auto r = client->emit(socket::Event::TEST_EVENT, nlohmann::json::parse(R"(
-  //               {
-  //                 "true": true,
-  //                 "false": false,
-  //                 "int": 123,
-  //                 "float": 1.23,
-  //                 "string": "123",
-  //                 "object": { "test_nested": 123 },
-  //                 "array": [{"oi": "123"}, 123, 1.23, true, false]
-  //               }
-  //             )"));
-  // std::cout << "waiting response" << std::endl;
-  // r.wait();
-  // std::cout << "r " << r.get().dump() << std::endl;
-  utils::wait_forever();
+      "eyJhdXRoSWQiOiJjYTdhM2M5OC03ZjliLTRlYjAtYTNlMi04NjkzMTk0MTI2ZWIiLCJhdXRo"
+      "S2V5IjoiMDg3MiIsInVzZXJJZCI6bnVsbCwiZGV2aWNlSWQiOiIwMDJjZjZhYS03N2IzLTQz"
+      "NGMtYTU3NS0zZTM3MzQyNzAyODQiLCJpYXQiOjE2Mzc1ODcyNzEsImV4cCI6MTYzNzY3MzY3"
+      "MX0.rUDaX5elALq3bGi1Wj6NzOqju0CfmA9nCdea7O4YRpo");
 
+  while (!client.connected()) {
+    auto c = client.connect();
+    std::cout << "waiting client connection" << std::endl;
+    auto connected = c.get();
+    if (connected.empty()) {
+      std::cout << "client connected" << std::endl;
+    } else {
+      std::cout << "client connection failed: '" << connected << "'"
+                << std::endl;
+      client.disconnect();
+      sleep(1);
+    }
+  }
+
+  client.device_on_request_ownership(
+      [](socket::DeviceOnRequestOwnershipCallbackArgs args) {
+        std::cout << "ownership requested: " << args.code << " (expires on "
+                  << args.expiration << ")" << std::endl;
+      });
+
+  utils::wait_forever();
   return 0;
 }
