@@ -72,6 +72,10 @@ http::Future<http::DeviceResponse> CentralApi::device_register(
   return this->http->device_register(device);
 }
 
+http::Future<http::UserResponse> CentralApi::device_me() {
+  return this->http->device_me();
+}
+
 http::Future<http::ServicesResponse> CentralApi::device_my_services() {
   return this->http->device_my_services();
 }

@@ -38,6 +38,7 @@ class CentralApi {
   http::Future<http::ServicesResponse> user_my_services();
   http::Future<http::DeviceResponse> device_register(
       http::DeviceRegisterArgs device);
+  http::Future<http::DeviceResponse> device_me();
   http::Future<http::ServicesResponse> device_my_services();
   http::Future<http::DeviceResponse> device_update_me(entities::Device device);
   http::Future<http::DeviceResponse> device_update(entities::Device device);
