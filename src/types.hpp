@@ -76,6 +76,8 @@ struct Service {
   Service();
   Service(nlohmann::json json);
   nlohmann::json to_json() const;
+
+  void operator=(ServiceWithStatus const &s);
 };
 
 struct ServiceStatus {
@@ -94,6 +96,8 @@ struct ServiceWithStatus : Service, ServiceStatus {
   ServiceWithStatus();
   ServiceWithStatus(nlohmann::json json);
   nlohmann::json to_json() const;
+
+  void operator=(Service const &d);
 };
 
 struct Device {
@@ -110,6 +114,8 @@ struct Device {
   Device();
   Device(nlohmann::json json);
   nlohmann::json to_json() const;
+
+  void operator=(DeviceWithStatus const &d);
 };
 
 struct DeviceStatus {
@@ -128,6 +134,8 @@ struct DeviceWithStatus : Device, DeviceStatus {
   DeviceWithStatus();
   DeviceWithStatus(nlohmann::json json);
   nlohmann::json to_json() const;
+
+  void operator=(Device const &s);
 };
 
 struct Lease {
