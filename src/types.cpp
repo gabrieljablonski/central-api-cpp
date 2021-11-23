@@ -269,17 +269,6 @@ nlohmann::json Service::to_json() const {
   return j;
 }
 
-void Service::Service::operator=(ServiceWithStatus const &s) {
-  this->id = s.id;
-  this->name = s.name;
-  this->display_name = s.display_name;
-  this->config = s.config;
-  this->operation_mode = s.operation_mode;
-  this->operation_mode_id = s.operation_mode_id;
-  this->linked_service_ids = s.linked_service_ids;
-  this->device_id = s.device_id;
-}
-
 ServiceStatus::ServiceStatus() {}
 
 ServiceStatus::ServiceStatus(nlohmann::json json) {
@@ -454,18 +443,6 @@ nlohmann::json Device::to_json() const {
   j["serviceOperationModes"] = ops;
 
   return j;
-}
-
-void Device::Device::operator=(DeviceWithStatus const &d) {
-  this->id = d.id;
-  this->display_name = d.display_name;
-  this->serial = d.serial;
-  this->user_id = d.user_id;
-  this->model = d.model;
-  this->group = d.group;
-  this->service_ids = d.service_ids;
-  this->lease_ids = d.lease_ids;
-  this->service_operation_modes = d.service_operation_modes;
 }
 
 DeviceStatus::DeviceStatus() {}
