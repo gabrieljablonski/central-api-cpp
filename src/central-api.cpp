@@ -3,14 +3,17 @@
 namespace viacast::central {
 
 CentralApi::CentralApi(int port, std::string host, std::string prefix,
-                       int timeout, std::string locale, bool https)
+                       int timeout, std::string locale, bool https,
+                       bool verbose)
     : port(port),
       host(host),
       prefix(prefix),
       timeout(timeout),
       locale(locale),
-      https(https) {
-  this->http = new http::Client(port, host, prefix, timeout, locale, https);
+      https(https),
+      verbose(verbose) {
+  this->http =
+      new http::Client(port, host, prefix, timeout, locale, https, verbose);
   this->socket = new socket::Client(port, host, this->prefix + "/socket.io/",
                                     timeout, locale, https);
 }

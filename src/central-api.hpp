@@ -16,6 +16,7 @@ class CentralApi {
   int32_t timeout;
   std::string locale;
   bool https;
+  bool verbose;
 
   http::Client *http;
   socket::Client *socket;
@@ -23,7 +24,8 @@ class CentralApi {
  public:
   CentralApi(int port = 4440, std::string host = "localhost",
              std::string prefix = "/v1", int timeout = 3000,
-             std::string locale = "en", bool https = false);
+             std::string locale = "en", bool https = false,
+             bool verbose = false);
 
   http::Future<http::AuthInfo> auth_login(std::string key,
                                           std::string password);
