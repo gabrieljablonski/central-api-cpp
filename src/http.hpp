@@ -133,6 +133,7 @@ class Client {
   Future<ServicesResponse> user_my_services();
 
   Future<DeviceResponse> device_register(DeviceRegisterArgs device);
+  Future<DeviceResponse> device_me();
   Future<ServicesResponse> device_my_services();
   Future<DeviceResponse> device_update_me(entities::Device device);
   Future<DeviceResponse> device_update(entities::Device device);

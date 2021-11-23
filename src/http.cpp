@@ -284,6 +284,19 @@ Future<DeviceResponse> Client::device_register(DeviceRegisterArgs device) {
   });
 }
 
+Future<DeviceResponse> Client::device_me() {
+  return std::async(std::launch::async, [&, this]() {
+    auto r = this->request("/device/me", Action::GET);
+    entities::Device device;
+    if (r.data.contains("device")) {
+      device = entities::Device(r.data.at("device"));
+    }
+    Response<DeviceResponse> response = {r.status, r.success, r.message,
+                                         DeviceResponse(device)};
+    return response;
+  });
+}
+
 Future<ServicesResponse> Client::device_my_services() {
   return std::async(std::launch::async, [&, this]() {
     auto r = this->request("/device/me/services", Action::GET);
