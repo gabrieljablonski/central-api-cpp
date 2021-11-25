@@ -57,7 +57,7 @@ class CentralApi {
 
   bool socket_connected();
   std::future<std::string> socket_connect();
-  std::string socket_try_connect();
+  void socket_try_connect();
   void socket_disconnect();
   socket::Future<> device_update_status(entities::DeviceStatus status);
   void device_on_update(socket::Callback<entities::Device> callback);

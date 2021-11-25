@@ -128,22 +128,21 @@ std::future<std::string> CentralApi::socket_connect() {
   return this->socket->connect();
 }
 
-std::string CentralApi::socket_try_connect() {
+void CentralApi::socket_try_connect() {
   while (!this->socket_connected()) {
     auto c = this->socket_connect();
     std::cerr << "waiting client connection" << std::endl;
     auto connected = c.get();
     if (connected.empty()) {
       std::cerr << "client connected" << std::endl;
+      return;
     } else {
       std::cerr << "client connection failed: '" << connected << "'"
                 << std::endl;
       this->socket_disconnect();
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    return connected;
   }
-  return "";
 }
 
 void CentralApi::socket_disconnect() { return this->socket->disconnect(); }
