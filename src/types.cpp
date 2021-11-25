@@ -327,7 +327,9 @@ nlohmann::json ServiceStatus::to_json() const {
   return j;
 }
 
-ServiceWithStatus::ServiceWithStatus() {}
+ServiceWithStatus::ServiceWithStatus() {
+  this->status = types::ServiceStatusType::null;
+}
 
 ServiceWithStatus::ServiceWithStatus(nlohmann::json json) {
   if (json.contains("id") && !json.at("id").is_null()) {
@@ -359,6 +361,8 @@ ServiceWithStatus::ServiceWithStatus(nlohmann::json json) {
   if (json.contains("status") && !json.at("status").is_null()) {
     viacast::central::types::from_string(json.at("status").get<std::string>(),
                                          &this->status);
+  } else {
+    this->status = types::ServiceStatusType::null;
   }
   if (json.contains("info") && !json.at("info").is_null()) {
     json.at("info").get_to(this->info);
@@ -546,7 +550,9 @@ nlohmann::json DeviceStatus::to_json() const {
   return j;
 }
 
-DeviceWithStatus::DeviceWithStatus() {}
+DeviceWithStatus::DeviceWithStatus() {
+  this->status = types::DeviceStatusType::null;
+}
 
 DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
   if (json.contains("id") && !json.at("id").is_null()) {
@@ -582,6 +588,8 @@ DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
   if (json.contains("status") && !json.at("status").is_null()) {
     viacast::central::types::from_string(json.at("status").get<std::string>(),
                                          &this->status);
+  } else {
+    this->status = types::DeviceStatusType::null;
   }
   if (json.contains("info") && !json.at("info").is_null()) {
     json.at("info").get_to(this->info);
