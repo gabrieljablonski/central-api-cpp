@@ -125,13 +125,13 @@ namespace viacast::central::entities {
 Auth::Auth() {}
 
 Auth::Auth(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("key")) {
+  if (json.contains("key") && !json.at("key").is_null()) {
     json.at("key").get_to(this->key);
   }
-  if (json.contains("role")) {
+  if (json.contains("role") && !json.at("role").is_null()) {
     viacast::central::types::from_string(json.at("role").get<std::string>(),
                                          &this->role);
   }
@@ -154,10 +154,10 @@ nlohmann::json Auth::to_json() const {
 Group::Group() {}
 
 Group::Group(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("displayName")) {
+  if (json.contains("displayName") && !json.at("displayName").is_null()) {
     json.at("displayName").get_to(this->display_name);
   }
 }
@@ -176,20 +176,20 @@ nlohmann::json Group::to_json() const {
 ServiceOperationMode::ServiceOperationMode() {}
 
 ServiceOperationMode::ServiceOperationMode(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("name")) {
+  if (json.contains("name") && !json.at("name").is_null()) {
     json.at("name").get_to(this->name);
   }
-  if (json.contains("displayName")) {
+  if (json.contains("displayName") && !json.at("displayName").is_null()) {
     json.at("displayName").get_to(this->display_name);
   }
-  if (json.contains("type")) {
+  if (json.contains("type") && !json.at("type").is_null()) {
     viacast::central::types::from_string(json.at("type").get<std::string>(),
                                          &this->type);
   }
-  if (json.contains("configLayout")) {
+  if (json.contains("configLayout") && !json.at("configLayout").is_null()) {
     json.at("configLayout").get_to(this->config_layout);
   }
 }
@@ -217,25 +217,27 @@ nlohmann::json ServiceOperationMode::to_json() const {
 Service::Service() {}
 
 Service::Service(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("name")) {
+  if (json.contains("name") && !json.at("name").is_null()) {
     json.at("name").get_to(this->name);
   }
-  if (json.contains("config")) {
+  if (json.contains("config") && !json.at("config").is_null()) {
     json.at("config").get_to(this->config);
   }
-  if (json.contains("operationMode")) {
+  if (json.contains("operationMode") && !json.at("operationMode").is_null()) {
     this->operation_mode = ServiceOperationMode(json.at("operationMode"));
   }
-  if (json.contains("operationModeId")) {
+  if (json.contains("operationModeId") &&
+      !json.at("operationModeId").is_null()) {
     json.at("operationModeId").get_to(this->operation_mode_id);
   }
-  if (json.contains("linkedServiceIds")) {
+  if (json.contains("linkedServiceIds") &&
+      !json.at("linkedServiceIds").is_null()) {
     json.at("linkedServiceIds").get_to(this->linked_service_ids);
   }
-  if (json.contains("deviceId")) {
+  if (json.contains("deviceId") && !json.at("deviceId").is_null()) {
     json.at("deviceId").get_to(this->device_id);
   }
 }
@@ -272,14 +274,14 @@ nlohmann::json Service::to_json() const {
 ServiceStatus::ServiceStatus() {}
 
 ServiceStatus::ServiceStatus(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("status")) {
+  if (json.contains("status") && !json.at("status").is_null()) {
     viacast::central::types::from_string(json.at("status").get<std::string>(),
                                          &this->status);
   }
-  if (json.contains("info")) {
+  if (json.contains("info") && !json.at("info").is_null()) {
     json.at("info").get_to(this->info);
   }
 }
@@ -301,32 +303,34 @@ nlohmann::json ServiceStatus::to_json() const {
 ServiceWithStatus::ServiceWithStatus() {}
 
 ServiceWithStatus::ServiceWithStatus(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("name")) {
+  if (json.contains("name") && !json.at("name").is_null()) {
     json.at("name").get_to(this->name);
   }
-  if (json.contains("config")) {
+  if (json.contains("config") && !json.at("config").is_null()) {
     json.at("config").get_to(this->config);
   }
-  if (json.contains("operationMode")) {
+  if (json.contains("operationMode") && !json.at("operationMode").is_null()) {
     this->operation_mode = ServiceOperationMode(json.at("operationMode"));
   }
-  if (json.contains("operationModeId")) {
+  if (json.contains("operationModeId") &&
+      !json.at("operationModeId").is_null()) {
     json.at("operationModeId").get_to(this->operation_mode_id);
   }
-  if (json.contains("linkedServiceIds")) {
+  if (json.contains("linkedServiceIds") &&
+      !json.at("linkedServiceIds").is_null()) {
     json.at("linkedServiceIds").get_to(this->linked_service_ids);
   }
-  if (json.contains("deviceId")) {
+  if (json.contains("deviceId") && !json.at("deviceId").is_null()) {
     json.at("deviceId").get_to(this->device_id);
   }
-  if (json.contains("status")) {
+  if (json.contains("status") && !json.at("status").is_null()) {
     viacast::central::types::from_string(json.at("status").get<std::string>(),
                                          &this->status);
   }
-  if (json.contains("info")) {
+  if (json.contains("info") && !json.at("info").is_null()) {
     json.at("info").get_to(this->info);
   }
 }
@@ -417,31 +421,32 @@ void ServiceWithStatus::ServiceWithStatus::operator=(Service const &s) {
 Device::Device() {}
 
 Device::Device(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("displayName")) {
+  if (json.contains("displayName") && !json.at("displayName").is_null()) {
     json.at("displayName").get_to(this->display_name);
   }
-  if (json.contains("serial")) {
+  if (json.contains("serial") && !json.at("serial").is_null()) {
     json.at("serial").get_to(this->serial);
   }
-  if (json.contains("userId")) {
+  if (json.contains("userId") && !json.at("userId").is_null()) {
     json.at("userId").get_to(this->user_id);
   }
-  if (json.contains("model")) {
+  if (json.contains("model") && !json.at("model").is_null()) {
     json.at("model").get_to(this->model);
   }
-  if (json.contains("group")) {
+  if (json.contains("group") && !json.at("group").is_null()) {
     this->group = Group(json.at("group"));
   }
-  if (json.contains("serviceIds")) {
+  if (json.contains("serviceIds") && !json.at("serviceIds").is_null()) {
     json.at("serviceIds").get_to(this->service_ids);
   }
-  if (json.contains("leaseIds")) {
+  if (json.contains("leaseIds") && !json.at("leaseIds").is_null()) {
     json.at("leaseIds").get_to(this->lease_ids);
   }
-  if (json.contains("serviceOperationModes")) {
+  if (json.contains("serviceOperationModes") &&
+      !json.at("serviceOperationModes").is_null()) {
     for (auto op : json.at("serviceOperationModes")) {
       this->service_operation_modes.push_back(ServiceOperationMode(op));
     }
@@ -485,14 +490,14 @@ nlohmann::json Device::to_json() const {
 DeviceStatus::DeviceStatus() {}
 
 DeviceStatus::DeviceStatus(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("status")) {
+  if (json.contains("status") && !json.at("status").is_null()) {
     viacast::central::types::from_string(json.at("status").get<std::string>(),
                                          &this->status);
   }
-  if (json.contains("info")) {
+  if (json.contains("info") && !json.at("info").is_null()) {
     json.at("info").get_to(this->info);
   }
 }
@@ -514,40 +519,41 @@ nlohmann::json DeviceStatus::to_json() const {
 DeviceWithStatus::DeviceWithStatus() {}
 
 DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("displayName")) {
+  if (json.contains("displayName") && !json.at("displayName").is_null()) {
     json.at("displayName").get_to(this->display_name);
   }
-  if (json.contains("serial")) {
+  if (json.contains("serial") && !json.at("serial").is_null()) {
     json.at("serial").get_to(this->serial);
   }
-  if (json.contains("userId")) {
+  if (json.contains("userId") && !json.at("userId").is_null()) {
     json.at("userId").get_to(this->user_id);
   }
-  if (json.contains("model")) {
+  if (json.contains("model") && !json.at("model").is_null()) {
     json.at("model").get_to(this->model);
   }
-  if (json.contains("group")) {
+  if (json.contains("group") && !json.at("group").is_null()) {
     this->group = Group(json.at("group"));
   }
-  if (json.contains("serviceIds")) {
+  if (json.contains("serviceIds") && !json.at("serviceIds").is_null()) {
     json.at("serviceIds").get_to(this->service_ids);
   }
-  if (json.contains("leaseIds")) {
+  if (json.contains("leaseIds") && !json.at("leaseIds").is_null()) {
     json.at("leaseIds").get_to(this->lease_ids);
   }
-  if (json.contains("serviceOperationModes")) {
+  if (json.contains("serviceOperationModes") &&
+      !json.at("serviceOperationModes").is_null()) {
     for (auto op : json.at("serviceOperationModes")) {
       this->service_operation_modes.push_back(ServiceOperationMode(op));
     }
   }
-  if (json.contains("status")) {
+  if (json.contains("status") && !json.at("status").is_null()) {
     viacast::central::types::from_string(json.at("status").get<std::string>(),
                                          &this->status);
   }
-  if (json.contains("info")) {
+  if (json.contains("info") && !json.at("info").is_null()) {
     json.at("info").get_to(this->info);
   }
 }
@@ -655,32 +661,32 @@ void DeviceWithStatus::DeviceWithStatus::operator=(Device const &d) {
 Lease::Lease() {}
 
 Lease::Lease(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("annotations")) {
+  if (json.contains("annotations") && !json.at("annotations").is_null()) {
     json.at("annotations").get_to(this->annotations);
   }
-  if (json.contains("type")) {
+  if (json.contains("type") && !json.at("type").is_null()) {
     viacast::central::types::from_string(json.at("type").get<std::string>(),
                                          &this->type);
   }
-  if (json.contains("start")) {
+  if (json.contains("start") && !json.at("start").is_null()) {
     json.at("start").get_to(this->start);
   }
-  if (json.contains("expiration")) {
+  if (json.contains("expiration") && !json.at("expiration").is_null()) {
     json.at("expiration").get_to(this->expiration);
   }
-  if (json.contains("canceled")) {
+  if (json.contains("canceled") && !json.at("canceled").is_null()) {
     json.at("canceled").get_to(this->canceled);
   }
-  if (json.contains("ownerId")) {
+  if (json.contains("ownerId") && !json.at("ownerId").is_null()) {
     json.at("ownerId").get_to(this->owner_id);
   }
-  if (json.contains("borrowerId")) {
+  if (json.contains("borrowerId") && !json.at("borrowerId").is_null()) {
     json.at("borrowerId").get_to(this->borrower_id);
   }
-  if (json.contains("deviceIds")) {
+  if (json.contains("deviceIds") && !json.at("deviceIds").is_null()) {
     json.at("deviceIds").get_to(this->device_ids);
   }
 }
@@ -720,28 +726,29 @@ nlohmann::json Lease::to_json() const {
 User::User() {}
 
 User::User(nlohmann::json json) {
-  if (json.contains("id")) {
+  if (json.contains("id") && !json.at("id").is_null()) {
     json.at("id").get_to(this->id);
   }
-  if (json.contains("email")) {
+  if (json.contains("email") && !json.at("email").is_null()) {
     json.at("email").get_to(this->email);
   }
-  if (json.contains("name")) {
+  if (json.contains("name") && !json.at("name").is_null()) {
     json.at("name").get_to(this->name);
   }
-  if (json.contains("organization")) {
+  if (json.contains("organization") && !json.at("organization").is_null()) {
     json.at("organization").get_to(this->organization);
   }
-  if (json.contains("group")) {
+  if (json.contains("group") && !json.at("group").is_null()) {
     this->group = Group(json.at("group"));
   }
-  if (json.contains("deviceIds")) {
+  if (json.contains("deviceIds") && !json.at("deviceIds").is_null()) {
     json.at("deviceIds").get_to(this->device_ids);
   }
-  if (json.contains("leasesOwnedIds")) {
+  if (json.contains("leasesOwnedIds") && !json.at("leasesOwnedIds").is_null()) {
     json.at("leasesOwnedIds").get_to(this->leases_owned_ids);
   }
-  if (json.contains("leasesBorrowedIds")) {
+  if (json.contains("leasesBorrowedIds") &&
+      !json.at("leasesBorrowedIds").is_null()) {
     json.at("leasesBorrowedIds").get_to(this->leases_borrowed_ids);
   }
 }
