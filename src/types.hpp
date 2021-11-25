@@ -94,6 +94,7 @@ struct ServiceWithStatus : Service, ServiceStatus {
   ServiceWithStatus();
   ServiceWithStatus(nlohmann::json json);
   nlohmann::json to_json() const;
+  void merge(ServiceWithStatus service);
 
   void operator=(Service const &d);
 };
@@ -130,6 +131,7 @@ struct DeviceWithStatus : Device, DeviceStatus {
   DeviceWithStatus();
   DeviceWithStatus(nlohmann::json json);
   nlohmann::json to_json() const;
+  void merge(DeviceWithStatus device);
 
   void operator=(Device const &s);
 };

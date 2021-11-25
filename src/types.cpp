@@ -366,6 +366,43 @@ nlohmann::json ServiceWithStatus::to_json() const {
   return j;
 }
 
+void ServiceWithStatus::merge(ServiceWithStatus service) {
+  if (!service.id.empty()) {
+    this->id = id;
+  }
+  if (!service.name.empty()) {
+    this->name = service.name;
+  }
+  if (!service.display_name.empty()) {
+    this->display_name = service.display_name;
+  }
+  if (!service.config.empty()) {
+    this->config = service.config;
+  }
+  if (!service.operation_mode.id.empty()) {
+    this->operation_mode = service.operation_mode;
+  }
+  if (!service.operation_mode_id.empty()) {
+    this->operation_mode_id = service.operation_mode_id;
+  }
+  if (!service.linked_service_ids.empty()) {
+    if (service.linked_service_ids.front().empty()) {
+      this->linked_service_ids = {};
+    } else {
+      this->linked_service_ids = service.linked_service_ids;
+    }
+  }
+  if (!service.device_id.empty()) {
+    this->device_id = service.device_id;
+  }
+  if (service.status != viacast::central::types::ServiceStatusType::null) {
+    this->status = service.status;
+  }
+  if (!service.info.empty()) {
+    this->info = service.info;
+  }
+}
+
 void ServiceWithStatus::ServiceWithStatus::operator=(Service const &s) {
   this->id = s.id;
   this->name = s.name;
@@ -474,18 +511,6 @@ nlohmann::json DeviceStatus::to_json() const {
   return j;
 }
 
-void DeviceWithStatus::DeviceWithStatus::operator=(Device const &d) {
-  this->id = d.id;
-  this->display_name = d.display_name;
-  this->serial = d.serial;
-  this->user_id = d.user_id;
-  this->model = d.model;
-  this->group = d.group;
-  this->service_ids = d.service_ids;
-  this->lease_ids = d.lease_ids;
-  this->service_operation_modes = d.service_operation_modes;
-}
-
 DeviceWithStatus::DeviceWithStatus() {}
 
 DeviceWithStatus::DeviceWithStatus(nlohmann::json json) {
@@ -565,6 +590,66 @@ nlohmann::json DeviceWithStatus::to_json() const {
     j["info"] = this->info;
   }
   return j;
+}
+
+void DeviceWithStatus::merge(DeviceWithStatus device) {
+  if (!device.id.empty()) {
+    this->id = id;
+  }
+  if (!device.display_name.empty()) {
+    this->display_name = device.display_name;
+  }
+  if (!device.serial.empty()) {
+    this->serial = device.serial;
+  }
+  if (!device.user_id.empty()) {
+    this->user_id = device.user_id;
+  }
+  if (!device.model.empty()) {
+    this->model = device.model;
+  }
+  if (!device.group.id.empty()) {
+    this->group = device.group;
+  }
+  if (!device.service_ids.empty()) {
+    if (device.service_ids.front().empty()) {
+      this->service_ids = {};
+    } else {
+      this->service_ids = device.service_ids;
+    }
+  }
+  if (!device.lease_ids.empty()) {
+    if (device.lease_ids.front().empty()) {
+      this->lease_ids = {};
+    } else {
+      this->lease_ids = device.lease_ids;
+    }
+  }
+  if (!device.service_operation_modes.empty()) {
+    if (device.service_operation_modes.front().name.empty()) {
+      this->service_operation_modes = {};
+    } else {
+      this->service_operation_modes = device.service_operation_modes;
+    }
+  }
+  if (device.status != viacast::central::types::DeviceStatusType::null) {
+    this->status = device.status;
+  }
+  if (!device.info.empty()) {
+    this->info = device.info;
+  }
+}
+
+void DeviceWithStatus::DeviceWithStatus::operator=(Device const &d) {
+  this->id = d.id;
+  this->display_name = d.display_name;
+  this->serial = d.serial;
+  this->user_id = d.user_id;
+  this->model = d.model;
+  this->group = d.group;
+  this->service_ids = d.service_ids;
+  this->lease_ids = d.lease_ids;
+  this->service_operation_modes = d.service_operation_modes;
 }
 
 Lease::Lease() {}
