@@ -247,6 +247,9 @@ Service::Service(nlohmann::json json) {
   if (json.contains("name") && !json.at("name").is_null()) {
     json.at("name").get_to(this->name);
   }
+  if (json.contains("displayName") && !json.at("displayName").is_null()) {
+    json.at("displayName").get_to(this->display_name);
+  }
   if (json.contains("config") && !json.at("config").is_null()) {
     json.at("config").get_to(this->config);
   }
@@ -332,6 +335,9 @@ ServiceWithStatus::ServiceWithStatus(nlohmann::json json) {
   }
   if (json.contains("name") && !json.at("name").is_null()) {
     json.at("name").get_to(this->name);
+  }
+  if (json.contains("displayName") && !json.at("displayName").is_null()) {
+    json.at("displayName").get_to(this->display_name);
   }
   if (json.contains("config") && !json.at("config").is_null()) {
     json.at("config").get_to(this->config);
