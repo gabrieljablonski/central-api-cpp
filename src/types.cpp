@@ -77,13 +77,21 @@ std::string to_string(AuthRole role) {
                                            {AuthRole::KEYGEN, "KEYGEN"},
                                            {AuthRole::USER, "USER"},
                                            {AuthRole::DEVICE, "DEVICE"}};
-  return names.at(role);
+  try {
+    return names.at(role);
+  } catch (std::out_of_range const &) {
+    return "";
+  }
 }
 
 std::string to_string(ServiceType type) {
   std::map<ServiceType, std::string> names = {{ServiceType::FEED, "FEED"},
                                               {ServiceType::OUTPUT, "OUTPUT"}};
-  return names.at(type);
+  try {
+    return names.at(type);
+  } catch (std::out_of_range const &) {
+    return "";
+  }
 }
 
 std::string to_string(ServiceStatusType type) {
@@ -92,7 +100,11 @@ std::string to_string(ServiceStatusType type) {
       {ServiceStatusType::READY, "READY"},
       {ServiceStatusType::LOAD, "LOAD"},
       {ServiceStatusType::LIVE, "LIVE"}};
-  return names.at(type);
+  try {
+    return names.at(type);
+  } catch (std::out_of_range const &) {
+    return "";
+  }
 }
 
 std::string to_string(DeviceStatusType type) {
@@ -100,14 +112,22 @@ std::string to_string(DeviceStatusType type) {
       {DeviceStatusType::OFF, "OFF"},
       {DeviceStatusType::ON, "ON"},
       {DeviceStatusType::REBOOTING, "REBOOTING"}};
-  return names.at(type);
+  try {
+    return names.at(type);
+  } catch (std::out_of_range const &) {
+    return "";
+  }
 }
 
 std::string to_string(LeaseType type) {
   std::map<LeaseType, std::string> names = {
       {LeaseType::EXCLUSIVE, "EXCLUSIVE"},
       {LeaseType::NON_EXCLUSIVE, "NON_EXCLUSIVE"}};
-  return names.at(type);
+  try {
+    return names.at(type);
+  } catch (std::out_of_range const &) {
+    return "";
+  }
 }
 
 std::string to_string(ToggleRunningAction action) {
@@ -115,7 +135,11 @@ std::string to_string(ToggleRunningAction action) {
       {ToggleRunningAction::START, "start"},
       {ToggleRunningAction::STOP, "stop"},
       {ToggleRunningAction::RESTART, "restart"}};
-  return names.at(action);
+  try {
+    return names.at(action);
+  } catch (std::out_of_range const &) {
+    return "";
+  }
 }
 
 }  // namespace viacast::central::types
