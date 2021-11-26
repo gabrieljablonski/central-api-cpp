@@ -131,6 +131,7 @@ struct DeviceWithStatus : Device, DeviceStatus {
   DeviceWithStatus();
   DeviceWithStatus(nlohmann::json json);
   nlohmann::json to_json() const;
+  void merge(Device device);
   void merge(DeviceWithStatus device);
 
   void operator=(Device const &s);

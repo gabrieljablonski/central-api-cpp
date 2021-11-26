@@ -406,7 +406,7 @@ nlohmann::json ServiceWithStatus::to_json() const {
 
 void ServiceWithStatus::merge(ServiceWithStatus service) {
   if (!service.id.empty()) {
-    this->id = id;
+    this->id = service.id;
   }
   if (!service.name.empty()) {
     this->name = service.name;
@@ -636,9 +636,15 @@ nlohmann::json DeviceWithStatus::to_json() const {
   return j;
 }
 
+void DeviceWithStatus::merge(Device device) {
+  DeviceWithStatus d;
+  d = device;
+  this->merge(d);
+}
+
 void DeviceWithStatus::merge(DeviceWithStatus device) {
   if (!device.id.empty()) {
-    this->id = id;
+    this->id = device.id;
   }
   if (!device.display_name.empty()) {
     this->display_name = device.display_name;
