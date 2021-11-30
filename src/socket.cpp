@@ -213,9 +213,9 @@ void Client::disconnect() { this->client.close(); }
 Future<> Client::device_update_status(entities::DeviceStatus status) {
   return this->emit(Event::UPDATE_DEVICE_STATUS,
                     {"status",
-                     {{"id", status.id},
-                      {"status", types::to_string(status.status)},
-                      {"info", status.info}}});
+                     {{{"id", status.id},
+                       {"status", types::to_string(status.status)},
+                       {"info", status.info}}}});
 }
 
 void Client::device_on_update(Callback<entities::Device> callback) {
@@ -259,10 +259,10 @@ void Client::device_on_request_ownership(
 
 Future<> Client::service_update_status(entities::ServiceStatus status) {
   return this->emit(Event::UPDATE_SERVICE_STATUS,
-                    {"status",
-                     {{"id", status.id},
-                      {"status", types::to_string(status.status)},
-                      {"info", status.info}}});
+                    {{"status",
+                      {{"id", status.id},
+                       {"status", types::to_string(status.status)},
+                       {"info", status.info}}}});
 }
 
 void Client::service_on_update(Callback<entities::Service> callback) {
