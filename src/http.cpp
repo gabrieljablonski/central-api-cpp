@@ -1,6 +1,8 @@
 #include "http.hpp"
 
-namespace viacast::central::http {
+namespace viacast {
+namespace central {
+namespace http {
 
 std::string action_to_string(Action action) {
   std::map<Action, std::string> names = {{Action::GET, "GET"},
@@ -421,4 +423,6 @@ Future<> Client::service_toggle_running(std::string id,
   });
 }
 
-}  // namespace viacast::central::http
+}  // namespace http
+}  // namespace central
+}  // namespace viacast

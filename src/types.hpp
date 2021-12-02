@@ -5,7 +5,9 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace viacast::central::types {
+namespace viacast {
+namespace central {
+namespace types {
 
 enum class AuthRole { null, ADMIN, KEYGEN, USER, DEVICE };
 enum class ServiceType { null, FEED, OUTPUT };
@@ -28,9 +30,9 @@ std::string to_string(DeviceStatusType type);
 std::string to_string(LeaseType type);
 std::string to_string(ToggleRunningAction action);
 
-}  // namespace viacast::central::types
+}  // namespace types
 
-namespace viacast::central::entities {
+namespace entities {
 
 struct Auth {
   std::string id;
@@ -168,4 +170,7 @@ struct User {
   nlohmann::json to_json() const;
 };
 
-}  // namespace viacast::central::entities
+}  // namespace entities
+
+}  // namespace central
+}  // namespace viacast

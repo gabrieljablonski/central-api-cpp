@@ -11,7 +11,9 @@
 
 #include "types.hpp"
 
-namespace viacast::central::http {
+namespace viacast {
+namespace central {
+namespace http {
 
 typedef std::list<std::string> Headers;
 
@@ -149,4 +151,6 @@ class Client {
                                   types::ToggleRunningAction action);
 };
 
-}  // namespace viacast::central::http
+}  // namespace http
+}  // namespace central
+}  // namespace viacast

@@ -1,6 +1,9 @@
 #include "types.hpp"
 
-namespace viacast::central::types {
+namespace viacast {
+
+namespace central {
+namespace types {
 
 void from_string(std::string str, AuthRole *role) {
   std::map<std::string, AuthRole> types = {{"ADMIN", AuthRole::ADMIN},
@@ -142,9 +145,9 @@ std::string to_string(ToggleRunningAction action) {
   }
 }
 
-}  // namespace viacast::central::types
+}  // namespace types
 
-namespace viacast::central::entities {
+namespace entities {
 
 Auth::Auth() {}
 
@@ -826,4 +829,6 @@ nlohmann::json User::to_json() const {
   return j;
 }
 
-}  // namespace viacast::central::entities
+}  // namespace entities
+}  // namespace central
+}  // namespace viacast

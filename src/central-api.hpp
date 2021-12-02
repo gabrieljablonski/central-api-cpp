@@ -6,7 +6,8 @@
 #include "http.hpp"
 #include "socket.hpp"
 
-namespace viacast::central {
+namespace viacast {
+namespace central {
 
 class CentralApi {
  private:
@@ -73,4 +74,5 @@ class CentralApi {
       socket::Callback<socket::ServiceOnToggleRunningCallbackArgs> callback);
 };
 
-}  // namespace viacast::central
+}  // namespace central
+}  // namespace viacast

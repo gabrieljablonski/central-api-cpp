@@ -1,11 +1,12 @@
-# nlohmann-json https://github.com/nlohmann/json/archive/refs/tags/v3.10.4.tar.gz
-# curlpp https://github.com/jpbarrette/curlpp/archive/refs/tags/v0.8.1.tar.gz
+# nlohmann-json https://github.com/viacast/json/tree/v3.10.4
+# curl https://github.com/viacast/curl/tree/curl-7_35_0
+# curlpp https://github.com/viacast/curlpp/tree/v0.8.1
 
 # libssl1.0-dev deb http://security.ubuntu.com/ubuntu bionic-security main
 # asio https://ufpr.dl.sourceforge.net/project/asio/asio/1.20.0%20%28Stable%29/asio-1.20.0.tar.gz
-# websocketpp https://github.com/zaphoyd/websocketpp/archive/refs/tags/0.8.2.tar.gz
+# websocketpp https://github.com/viacast/websocketpp/tree/0.8.2
 
-# rapidjson https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz
+# rapidjson https://github.com/viacast/rapidjson/tree/v1.1.0
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=class-memaccess -Wno-error=implicit-fallthrough=")
 
-# socket.io https://github.com/gabrieljablonski/socket.io-client-cpp
+# socket.io https://github.com/gabrieljablonski/socket.io-client-cpp/tree/viacast-central

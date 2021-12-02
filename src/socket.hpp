@@ -16,7 +16,9 @@
 #include "types.hpp"
 #include "utils.hpp"
 
-namespace viacast::central::socket {
+namespace viacast {
+namespace central {
+namespace socket {
 
 enum class Event {
   TEST_EVENT,
@@ -113,4 +115,6 @@ class Client {
       Callback<ServiceOnToggleRunningCallbackArgs> callback);
 };
 
-}  // namespace viacast::central::socket
+}  // namespace socket
+}  // namespace central
+}  // namespace viacast

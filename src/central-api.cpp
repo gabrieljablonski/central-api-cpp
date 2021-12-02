@@ -1,6 +1,7 @@
 #include "central-api.hpp"
 
-namespace viacast::central {
+namespace viacast {
+namespace central {
 
 CentralApi::CentralApi(int port, std::string host, std::string prefix,
                        int timeout, std::string locale, bool https,
@@ -186,4 +187,5 @@ void CentralApi::service_on_toggle_running(
   return this->socket->service_on_toggle_running(callback);
 }
 
-}  // namespace viacast::central
+}  // namespace central
+}  // namespace viacast

@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -s")
+set(CMAKE_CXX_FLAGS_RELEASE "-L/home/jablonski/central-build-nano/lib -I/home/jablonski/central-build-nano/include -std=c++11 -std=gnu++11 -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -O3 -s -DNDEBUG")
 
 project(CentralApi)
 

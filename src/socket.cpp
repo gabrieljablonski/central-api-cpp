@@ -1,6 +1,8 @@
 #include "socket.hpp"
 
-namespace viacast::central::socket {
+namespace viacast {
+namespace central {
+namespace socket {
 
 std::string event_to_string(Event event) {
   std::map<Event, std::string> names = {
@@ -306,4 +308,6 @@ void Client::service_on_toggle_running(
                   });
 }
 
-}  // namespace viacast::central::socket
+}  // namespace socket
+}  // namespace central
+}  // namespace viacast

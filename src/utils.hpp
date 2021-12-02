@@ -2,8 +2,12 @@
 
 #include <future>
 
-namespace viacast::central::utils {
+namespace viacast {
+namespace central {
+namespace utils {
 
 void wait_forever();
 
-}  // namespace viacast::central::utils
+}  // namespace utils
+}  // namespace central
+}  // namespace viacast
